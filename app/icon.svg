@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- The depot robot's face: white head, dark glass screen, two cyan eyes, on the site's sky blue -->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0f74e0"/>
+      <stop offset="1" stop-color="#46b8ff"/>
+    </linearGradient>
+    <linearGradient id="shell" x1="0" y1="0" x2="0" y2="1">
+      <stop offset=".45" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#d9e3ef"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#sky)"/>
+  <rect x="8" y="15" width="48" height="34" rx="13" fill="url(#shell)"/>
+  <rect x="14" y="22" width="36" height="20" rx="10" fill="#0b1838"/>
+  <rect x="20.5" y="25.5" width="8" height="13" rx="4" fill="#5fe3ff"/>
+  <rect x="35.5" y="25.5" width="8" height="13" rx="4" fill="#5fe3ff"/>
+</svg>
