@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createCrane, type Crane, type ZoomState } from '@/lib/crane';
 import { ContainerBox } from './ContainerBox';
+import { DemoHub } from './demos/DemoHub';
 import { CONTAINERS, indexOf, NAMES, NAV, PILES } from './containers';
 import { EMAIL, RESUME } from './sections';
 import { StatsBoard } from './StatsBoard';
@@ -60,6 +61,7 @@ export function Depot() {
           })}
         </nav>
         <div className="nav-end">
+          <DemoHub />
           <a className="resume" href={RESUME.href} download={RESUME.filename} data-resume aria-label="Download Kanav’s resume (PDF)">
             <svg viewBox="0 0 16 16" aria-hidden="true">
               <path d="M8 2v8M4.5 6.5 8 10l3.5-3.5M3 13h10" />

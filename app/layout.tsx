@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bricolage_Grotesque, Figtree, Fredoka, Instrument_Serif } from "next/font/google";
+import { Bricolage_Grotesque, Figtree, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
 // Stand-ins for Clash Display and Cabinet Grotesk (Fontshare), which globals.css still prefers when installed
@@ -18,12 +18,7 @@ const serif = Instrument_Serif({
   variable: "--font-serif",
   subsets: ["latin"],
   weight: "400",
-  style: "italic",
-});
-
-const logo = Fredoka({
-  variable: "--font-logo",
-  subsets: ["latin"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -33,12 +28,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f74e0",
+  themeColor: "#0f1622",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable} ${serif.variable} ${logo.variable}`}>
+    <html lang="en" className={`${display.variable} ${body.variable} ${serif.variable}`}>
       <body>{children}</body>
     </html>
   );
