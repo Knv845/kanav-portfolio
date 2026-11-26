@@ -1,6 +1,8 @@
-# Kanav Khera · The Portfolio Depot
+# Kanav Khera · Portfolio
 
-A one-page portfolio. A crane claw rides a rail above a pile of 3D shipping containers; click a container (or a nav link) and the claw puts back the one it holds, fetches the new one, lifts it to the top and swings its doors open to show that section.
+The home page is one horizontal story. The robot crane hands over a phone; scrolling takes the camera inside it (screens, state, offline queue, native modules, using NearMed and ParkAssist as the examples), then follows one request to the server, through rate limiting and scaling, and ends with the stack, the career log and the live demos. Vertical scroll drives it; the chapter text slides sideways and a timeline runs along the bottom (arrow keys work too).
+
+The earlier crane-and-containers page is still at `/depot` (not linked, not indexed): a crane claw rides a rail above a pile of 3D shipping containers and opens the one you pick.
 
 Built with Next.js 16 (App Router), React 19 and plain CSS. No animation library: the containers are CSS 3D boxes, and the motion runs on registered CSS custom properties.
 
@@ -18,11 +20,14 @@ npm run build && npm start
 
 | Path | What it is |
 |---|---|
-| `components/sections.tsx` | The text inside every container, plus your email address |
+| `components/story/Story.tsx` | The home page: nav, the stage (crane, phone layers, gateway, server, data), chapter text, career log and demo cards |
+| `components/story/story.module.css` | The home page's styles (scoped to the page) |
+| `lib/story/engine.ts` | The home page's animation: scroll → chapter, camera, request packets, rate-limit token bucket, autoscaler |
+| `components/sections.tsx` | The text inside every depot container, plus your email address and resume path |
 | `components/containers.ts` | The nine containers: colour, door label, tag, pile position, which section they hold; and the nav links |
 | `components/DeckCarousel.tsx` | The ON DECK screenshots (list at the top of the file) |
 | `components/StatsBoard.tsx` | The split-flap stats and their screen-reader text |
-| `components/Depot.tsx` | Page layout: nav, stage, rail and claw |
+| `components/Depot.tsx` | The `/depot` page: nav, stage, rail and claw |
 | `components/ContainerBox.tsx` | One 3D container: faces, doors, inside wall |
 | `lib/crane.ts` | The claw engine: put back, travel, drop, grip, lift, open; queues clicks; Escape goes home |
 | `lib/geometry.ts` | Pure sizing and positioning maths (tested in `tests/geometry.test.ts`) |

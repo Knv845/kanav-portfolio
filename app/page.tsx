@@ -1,5 +1,5 @@
-import { Depot } from "@/components/Depot";
+import { Story } from "@/components/story/Story";
 
 export default function Home() {
-  return <Depot />;
+  return <Story />;
 }
