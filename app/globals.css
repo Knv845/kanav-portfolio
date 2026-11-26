@@ -597,14 +597,15 @@ button.hint:not(:disabled):hover { border-color: var(--signal); color: #fff; }
 .dv-close:hover { border-color: var(--ivory); }
 .dv-close svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 
-.dv-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 380px) 1fr; }
-.dv-info { min-height: 0; overflow-y: auto; padding: 8px 28px 28px 32px; scrollbar-width: thin; }
+.dv-body { flex: 1; min-height: 0; display: grid; grid-template-columns: clamp(340px, 36vw, 580px) minmax(0, 1fr); }
+.dv-info { min-height: 0; overflow-y: auto; padding: 8px 40px 36px 48px; scrollbar-width: thin; }
+.dv-info-body { max-width: 34rem; }
 .dv-info-toggle { display: none; }
 .dv-kicker { margin: 10px 0 6px; font: 600 11px/1 var(--body); letter-spacing: .22em; text-transform: uppercase; color: var(--signal); }
 .dv-info h2 { margin: 0; font: 400 52px/1 var(--serif); letter-spacing: -.01em; color: var(--ivory); }
-.dv-pitch { margin: 12px 0 0; font-size: 16px; line-height: 1.5; color: #ddd6c9; }
+.dv-pitch { margin: 14px 0 0; font-size: 17px; line-height: 1.55; color: #ddd6c9; }
 .dv-info h3 { margin: 24px 0 10px; font: 600 11px/1 var(--body); letter-spacing: .18em; text-transform: uppercase; color: #8c877c; }
-.dv-steps, .dv-points { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: 14px; line-height: 1.45; }
+.dv-steps, .dv-points { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; font-size: 15px; line-height: 1.5; }
 .dv-steps { counter-reset: s; }
 .dv-steps li { counter-increment: s; display: grid; grid-template-columns: 24px 1fr; gap: 8px; }
 .dv-steps li::before {
