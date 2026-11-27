@@ -1,6 +1,6 @@
 # Kanav Khera · Portfolio
 
-The home page is one horizontal story. The robot crane hands over a phone; scrolling takes the camera inside it (screens, state, offline queue, native modules, using NearMed and ParkAssist as the examples), then follows one request to the server, through rate limiting and scaling, and ends with the stack, the career log and the live demos. Vertical scroll drives it; the chapter text slides sideways and a timeline runs along the bottom (arrow keys work too).
+The home page is one scrolling story. The robot crane hands over a phone; scrolling takes the camera inside it (screens, state, offline queue, native modules, using NearMed and ParkAssist as the examples), then follows one request to the server, through rate limiting and scaling, and ends with the stack, the career log and the live demos. The chapter text scrolls as ordinary page content: on desktop beside a pinned animation stage with a chapter list on the left, on phones under a stage pinned to the top, which slides away for the career log and demos.
 
 The earlier crane-and-containers page is still at `/depot` (not linked, not indexed): a crane claw rides a rail above a pile of 3D shipping containers and opens the one you pick.
 

@@ -582,7 +582,8 @@ button.hint:not(:disabled):hover { border-color: var(--signal); color: #fff; }
 .demo-viewer[open] { display: flex; flex-direction: column; animation: viewer-in .25s var(--ease); }
 .demo-viewer::backdrop { background: rgba(5, 7, 11, .65); }
 @keyframes viewer-in { from { opacity: 0; transform: scale(.985); } }
-.dv-top { flex: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 24px; }
+/* Above the intro overlay, so the project tabs and the close button keep working while a video plays */
+.dv-top { flex: none; position: relative; z-index: 21; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 24px; }
 .dv-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 999px; border: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
 .dv-tabs button {
   padding: 9px 16px; border: 0; border-radius: 999px; background: none; cursor: pointer; white-space: nowrap;
@@ -674,6 +675,14 @@ button.hint:not(:disabled):hover { border-color: var(--signal); color: #fff; }
   .dv-views { max-width: 100%; overflow-x: auto; scrollbar-width: none; }
   .dv-views button { padding: 8px 11px; font-size: 12px; }
   .dv-hint { font-size: 12px; padding: 0 6px; }
+}
+/* Phones held sideways: too short to fit a usable phone, so the viewer scrolls and the device keeps a real size */
+@media (max-height: 539px) and (orientation: landscape) {
+  .demo-viewer[open] { overflow-y: auto; }
+  .dv-top { position: sticky; top: 0; background: var(--hold); }
+  .dv-body { flex: none; }
+  .dv-device { flex: none; height: 600px; }
+  .demo-viewer .dv-intro { position: fixed; }
 }
 @media (max-width: 700px) {
   .demo-btn { padding: 8px 12px; font-size: 13px; }

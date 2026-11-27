@@ -1,5 +1,5 @@
-// The landing story's animation engine. Vertical scroll drives a horizontal strip of chapters; each chapter sets a
-// scene on a 1200×720 world that a camera pans and zooms through, and runs that scene's packets and timers.
+// The landing story's animation engine. Chapters scroll as ordinary page content; the one being read sets a scene on a
+// 1200×720 world (on a pinned stage) that a camera pans and zooms through, and runs that scene's packets and timers.
 // Elements are found by data-ref; class names come from the CSS module. startStory returns a cleanup function.
 
 type Styles = Record<string, string>;
@@ -30,13 +30,12 @@ export function startStory(root: HTMLElement, s: Styles): () => void {
     cleanups.push(() => el.removeEventListener(type, fn));
   };
 
-  // The root element is the scroll runway itself
-  const runway = root;
-  const world = ref('world'), cam = ref('cam'), fit = ref('fit'), pktLayer = ref('pkts'), track = ref('track'), ui = ref('ui');
+  const world = ref('world'), cam = ref('cam'), fit = ref('fit'), pktLayer = ref('pkts'), ui = ref('ui'), stage = ref('stage');
+  const nav = root.querySelector('header')!;
   const chapters = refs('chapter');
   const N = chapters.length;
-  const sizeRunway = () => { runway.style.height = `${N * 100}vh`; };
-  sizeRunway();
+  // Phones and tablets held upright: the stage is pinned above the text instead of beside it (matches the CSS)
+  const stacked = matchMedia('(max-width: 1000px) and (min-height: 540px)');
 
   // ---------- split-flap stats board ----------
   const cellsEl = ref('cells');
@@ -65,8 +64,10 @@ export function startStory(root: HTMLElement, s: Styles): () => void {
   // ---------- fit the world into the stage; the camera ----------
   function resize() {
     const r = fit.getBoundingClientRect();
-    const k = Math.min(r.width / 1200, r.height / 720);
-    world.style.transform = `translate(${(r.width - 1200 * k) / 2}px, ${(r.height - 720 * k) / 2}px) scale(${k})`;
+    // On a narrow stage, zoom a little past the width (the camera keeps the action centred) so it reads on a phone
+    const k = Math.min((r.width / 1200) * (stacked.matches ? 1.24 : 1), r.height / 720);
+    const y = stacked.matches ? Math.max(0, (r.height - 720 * k) * 0.32) : (r.height - 720 * k) / 2;
+    world.style.transform = `translate(${(r.width - 1200 * k) / 2}px, ${y}px) scale(${k})`;
   }
   const ro = new ResizeObserver(resize);
   ro.observe(fit);
@@ -323,7 +324,7 @@ export function startStory(root: HTMLElement, s: Styles): () => void {
   }
 
   // ---------- chapters ----------
-  const ticksEl = ref('ticks'), prog = ref('prog'), gateTitle = ref('gate-title'), gateSub = ref('gate-sub');
+  const ticksEl = ref('ticks'), prog = ref('prog'), mprog = ref('mprog'), mnum = ref('mnum'), mlabel = ref('mlabel'), mchip = ref('mchip'), gateTitle = ref('gate-title'), gateSub = ref('gate-sub');
   const huds = refs('hud'), ovResume = ref('ov-resume'), ovDemos = ref('ov-demos'), navLinks = refs('navlink');
   const HUD: Record<string, string> = { request: 'request', server: 'request', limit: 'limit', scale: 'scale' };
   const SCENES: Record<string, (sub: string) => void> = { intro, phone, request: () => request(false), server: () => request(true), limit, scale, stack };
@@ -345,7 +346,9 @@ export function startStory(root: HTMLElement, s: Styles): () => void {
     const prev = chapters[current];
     current = i;
     const c = chapters[i], scene = c.dataset.scene!, sub = c.dataset.sub ?? '';
-    chapters.forEach((x, j) => { x.inert = j !== i; });
+    mnum.textContent = `${String(i + 1).padStart(2, '0')} / ${N}`;
+    mlabel.textContent = c.dataset.label ?? '';
+    mchip.style.setProperty('--cc', c.style.getPropertyValue('--cc'));
     ticks.forEach((t, j) => { t.classList.toggle(s.on, j === i); t.classList.toggle(s.done, j < i); });
     world.dataset.scene = scene;
     world.dataset.sub = sub;
@@ -353,6 +356,8 @@ export function startStory(root: HTMLElement, s: Styles): () => void {
     huds.forEach((h) => h.classList.toggle(s.on, h.dataset.hud === HUD[scene]));
     ovResume.classList.toggle(s.on, scene === 'resume');
     ovDemos.classList.toggle(s.on, scene === 'demos');
+    // On phones the career log and demo cards get the whole screen: the pinned stage slides up out of the way
+    stage.classList.toggle(s.away, scene === 'resume' || scene === 'demos');
     navLinks.forEach((a) => a.classList.toggle(s.on, a.dataset.scene === scene));
     const sceneChanged = !prev || prev.dataset.scene !== scene;
     if (!sceneChanged && scene !== 'phone') return;
@@ -365,31 +370,45 @@ export function startStory(root: HTMLElement, s: Styles): () => void {
     if (!['phone', 'request', 'server'].includes(scene)) { ui.dataset.screen = 'orders'; ui.classList.remove(s.offline); }
   }
 
-  // Vertical scroll drives the strip; buttons, keys and links scroll to a chapter
-  const span = () => runway.offsetHeight - innerHeight;
-  const top0 = () => runway.getBoundingClientRect().top + scrollY;
+  // Native vertical scroll. The reading line is the middle of the text area: the viewport below the nav on desktop,
+  // the space under the pinned stage on phones (its layout height, not its on-screen rect, so sliding the stage away
+  // never moves the line). The chapter the line falls inside sets the scene; text fades with its distance from it.
+  const textTop = () => nav.offsetHeight + (stacked.matches ? stage.offsetHeight : 0);
+  const line = () => (textTop() + innerHeight) / 2;
   function fromScroll() {
-    const p = span() > 0 ? Math.min(1, Math.max(0, (scrollY - top0()) / span())) : 0;
-    const pos = p * (N - 1);
-    track.style.transform = `translateX(${-pos * 100}%)`;
-    chapters.forEach((c, j) => { c.style.opacity = String(Math.max(0.08, 1 - Math.abs(pos - j) * 1.4)); });
-    prog.style.width = `${p * 100}%`;
-    setChapter(Math.round(pos));
+    const L = line(), fade = innerHeight * 0.38;
+    const rects = chapters.map((ch) => ch.getBoundingClientRect());
+    let i = rects.findIndex((r) => L >= r.top && L < r.bottom);
+    if (i < 0) i = L < rects[0].top ? 0 : N - 1;
+    const frac = Math.min(1, Math.max(0, (L - rects[i].top) / rects[i].height));
+    const pos = Math.min(N - 1, Math.max(0, i + frac - 0.5));
+    chapters.forEach((ch, j) => {
+      const r = rects[j], d = L < r.top ? r.top - L : L > r.bottom ? L - r.bottom : 0;
+      ch.style.opacity = String(Math.max(0.12, 1 - d / fade));
+    });
+    prog.style.height = `${(pos / (N - 1)) * Math.max(0, ticksEl.offsetHeight - 28)}px`;
+    mprog.style.width = `${(pos / (N - 1)) * 100}%`;
+    setChapter(i);
   }
+  // Scroll chapter i to the reading line: centred if it fits the text area, otherwise its top just under it. On phones
+  // the stage slides away for the career log and demos, so those land just under the nav
   function go(i: number) {
     const k = Math.max(0, Math.min(N - 1, i));
-    scrollTo({ top: top0() + (span() * k) / (N - 1), behavior: reduce ? 'auto' : 'smooth' });
+    const r = chapters[k].getBoundingClientRect(), room = innerHeight - textTop();
+    const freed = stacked.matches && ['resume', 'demos'].includes(chapters[k].dataset.scene!);
+    // (a short freed chapter still sits low enough that the reading line falls inside it)
+    const y = freed ? r.top - Math.max(nav.offsetHeight + 8, line() - r.height + 40) : r.height <= room ? r.top + r.height / 2 - line() : r.top - textTop();
+    scrollTo({ top: Math.max(0, scrollY + y), behavior: reduce ? 'auto' : 'smooth' });
   }
   let ticking = false;
-  listen('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { ticking = false; fromScroll(); }); } }, { passive: true });
-  listen('resize', () => { sizeRunway(); fromScroll(); });
+  const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { ticking = false; fromScroll(); }); } };
+  const relayout = () => { resize(); onScroll(); };
+  listen('scroll', onScroll, { passive: true });
+  listen('resize', relayout);
+  stacked.addEventListener('change', relayout);
+  cleanups.push(() => stacked.removeEventListener('change', relayout));
   on(ref('prev'), 'click', () => go(current - 1));
   on(ref('next'), 'click', () => go(current + 1));
-  listen('keydown', (e) => {
-    if ((e.target as HTMLElement).closest?.('input, textarea, dialog')) return;
-    if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); go(current + 1); }
-    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(current - 1); }
-  });
   root.querySelectorAll<HTMLElement>('[data-go]').forEach((a) => on(a, 'click', (e) => { e.preventDefault(); go(+a.dataset.go!); }));
   fromScroll();
   if (current < 0) setChapter(0);

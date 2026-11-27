@@ -208,7 +208,7 @@
 @keyframes rise { from { transform: translate(-50%, 10px); opacity: 0; } }
 
 @container (max-width: 900px) {
-  .app, .admin { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+  .app, .admin { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
   .side { flex-direction: row; align-items: center; gap: 12px; padding: 10px 16px; border-right: 0; border-bottom: 1px solid var(--hair); overflow: visible; }
   .side > :not(.brand):not(.signedIn):not(.nav) { display: none; }
   .brand { margin: 0; }
@@ -225,6 +225,8 @@
   .page { padding: 18px; }
   .topbar { padding: 0 16px; grid-template-columns: 1fr auto; }
   .search { display: none; }
+  /* Wide tables scroll sideways inside the frame instead of being cut off */
+  .table { display: block; max-width: 100%; overflow-x: auto; white-space: nowrap; }
 }
 @media (prefers-reduced-motion: reduce) {
   .app *, .app *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; }
